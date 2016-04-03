@@ -57,7 +57,28 @@ void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az
 		updateIMU(gx, gy, gz, ax, ay, az);
 		return;
 	}
-
+	
+	magMagnitude = sqrtf(mx*mx + my*my + mz*mz);
+	
+	// Use IMU algorithm if magnetic jamming is occurring
+	if(magJammingActive) {
+		//Maintain magJammingActive for 1 second
+		if(magJammingCounter++ < (1 / invSampleFreq)) {
+			updateIMU(gx, gy, gz, ax, ay, az);
+			return;
+		}
+	}
+	if(magMagnitude > magJammingThreshold) {
+		magJammingCounter = 0;
+		magJammingActive = true;
+		updateIMU(gx, gy, gz, ax, ay, az);
+		return;
+	}
+	else {
+		magJammingCounter = 0;
+		magJammingActive = false;
+	}
+	
 	// Convert gyroscope degrees/sec to radians/sec
 	gx *= 0.0174533f;
 	gy *= 0.0174533f;

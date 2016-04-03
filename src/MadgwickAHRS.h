@@ -34,6 +34,11 @@ private:
     float yaw;
     char anglesComputed;
     void computeAngles();
+    
+    float magMagnitude = NAN;
+    float magJammingThreshold = 52.0f;
+    bool magJammingActive = false;
+    int magJammingCounter = 0;
 
 //-------------------------------------------------------------------------------------------
 // Function declarations
@@ -68,6 +73,19 @@ public:
     float getYawRadians() {
         if (!anglesComputed) computeAngles();
         return yaw;
+    }      
+    float getMagneticMagnitude() {
+        return magMagnitude;
+    }
+    bool getMagJammed(){
+    	return magJammingActive;
+	} 
+    void setMagneticJammingThreshold(float magneticJammingThreshold){
+    	if(magneticJammingThreshold < 0.0f)
+    		return;
+    	if(magneticJammingThreshold > 10000.0f)
+    		return;		
+    	magJammingThreshold = magneticJammingThreshold;
     }
 };
 #endif
