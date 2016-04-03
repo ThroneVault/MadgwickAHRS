@@ -64,7 +64,9 @@ void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az
 		magMagnitudeFiltered = magMagnitude;
 		firstRun = false;
 	}
-	magMagnitudeFiltered += ((magMagnitude - magMagnitudeFiltered) * 0.0001);
+	if((magMagnitude < (magMagnitudeFiltered + (magJammingThreshold * 3))) && (magMagnitude > (magMagnitudeFiltered - (magJammingThreshold * 3)))) {
+		magMagnitudeFiltered += ((magMagnitude - magMagnitudeFiltered) * 0.00001);
+	}
 	if(magMagnitudeFiltered > magMagnitudeFilteredMax)
 		magMagnitudeFiltered = magMagnitudeFilteredMax;
 	if(magMagnitudeFiltered < magMagnitudeFilteredMin)
