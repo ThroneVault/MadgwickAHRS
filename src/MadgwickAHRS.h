@@ -39,7 +39,7 @@ private:
     bool firstRun = true;
     float magMagnitude = NAN;
     float magMagnitudeFiltered = 42.0f;
-    float magMagnitudeFilteredMax = 62.0f;
+    float magMagnitudeFilteredMax = 57.0f;
     float magMagnitudeFilteredMin = 37.0f;
     
     float magJammingThreshold = 5.0f;
