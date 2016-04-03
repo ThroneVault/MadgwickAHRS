@@ -36,10 +36,10 @@ private:
     char anglesComputed;
     void computeAngles();
     
+    bool firstRun = true;
     float magMagnitude = NAN;
-    
     float magMagnitudeFiltered = 42.0f;
-    float magMagnitudeFilteredMax = 67.0f;
+    float magMagnitudeFilteredMax = 62.0f;
     float magMagnitudeFilteredMin = 37.0f;
     
     float magJammingThreshold = 5.0f;
