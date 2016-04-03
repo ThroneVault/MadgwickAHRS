@@ -59,16 +59,21 @@ void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az
 	}
 	
 	magMagnitude = sqrtf(mx*mx + my*my + mz*mz);
+	magMagnitudeFiltered += (magMagnitude - magMagnitudeFiltered) * 0.01;
+	if(magMagnitudeFiltered > magMagnitudeFilteredMax)
+		magMagnitudeFiltered = magMagnitudeFilteredMax;
+	if(magMagnitudeFiltered < magMagnitudeFilteredMin)
+		magMagnitudeFiltered = magMagnitudeFilteredMin;
 	
 	// Use IMU algorithm if magnetic jamming is occurring
 	if(magJammingActive) {
 		//Maintain magJammingActive for 1 second
-		if(magJammingCounter++ < (1 / invSampleFreq)) {
+		if(magJammingCounter++ < sampleFreq) {
 			updateIMU(gx, gy, gz, ax, ay, az);
 			return;
 		}
 	}
-	if(magMagnitude > magJammingThreshold) {
+	if((magMagnitude > (magMagnitudeFiltered + magJammingThreshold)) || (magMagnitude < (magMagnitudeFiltered - magJammingThreshold))) {
 		magJammingCounter = 0;
 		magJammingActive = true;
 		updateIMU(gx, gy, gz, ax, ay, az);

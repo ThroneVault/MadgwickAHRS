@@ -28,6 +28,7 @@ private:
     float q1;
     float q2;
     float q3;	// quaternion of sensor frame relative to auxiliary frame
+    float sampleFreq;
     float invSampleFreq;
     float roll;
     float pitch;
@@ -36,7 +37,12 @@ private:
     void computeAngles();
     
     float magMagnitude = NAN;
-    float magJammingThreshold = 52.0f;
+    
+    float magMagnitudeFiltered = 42.0f;
+    float magMagnitudeFilteredMax = 67.0f;
+    float magMagnitudeFilteredMin = 37.0f;
+    
+    float magJammingThreshold = 5.0f;
     bool magJammingActive = false;
     int magJammingCounter = 0;
 
@@ -44,7 +50,7 @@ private:
 // Function declarations
 public:
     Madgwick(void);
-    void begin(float sampleFrequency) { invSampleFreq = 1.0f / sampleFrequency; }
+    void begin(float sampleFrequency) { sampleFreq = sampleFrequency; invSampleFreq = 1.0f / sampleFrequency; }
     void update(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz);
     void updateIMU(float gx, float gy, float gz, float ax, float ay, float az);
     //float getPitch(){return atan2f(2.0f * q2 * q3 - 2.0f * q0 * q1, 2.0f * q0 * q0 + 2.0f * q3 * q3 - 1.0f);};
@@ -77,16 +83,19 @@ public:
     float getMagneticMagnitude() {
         return magMagnitude;
     }
+    float getMagneticMagnitudeFiltered(){
+    	return magMagnitudeFiltered;
+    }
     bool getMagJammed(){
     	return magJammingActive;
 	} 
     void setMagneticJammingThreshold(float magneticJammingThreshold){
-    	if(magneticJammingThreshold < 0.0f)
+    	if(magneticJammingThreshold < 1.0f)
     		return;
-    	if(magneticJammingThreshold > 10000.0f)
+    	if(magneticJammingThreshold > 1000.0f)
     		return;		
     	magJammingThreshold = magneticJammingThreshold;
-    }
+    }    
 };
 #endif
 
