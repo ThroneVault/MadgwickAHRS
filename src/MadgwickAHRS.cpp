@@ -20,6 +20,7 @@
 // Header files
 
 #include "MadgwickAHRS.h"
+#include "MagneticJammingFilter.h"
 #include <math.h>
 
 //-------------------------------------------------------------------------------------------
@@ -58,38 +59,12 @@ void Madgwick::update(float gx, float gy, float gz, float ax, float ay, float az
 		return;
 	}
 	
-	magMagnitude = sqrtf(mx*mx + my*my + mz*mz);
+	magneticJammingFilter.update(mx, my, mz);
 	
-	if(firstRun) {
-		magMagnitudeFiltered = magMagnitude;
-		firstRun = false;
-	}
-	if((magMagnitude < (magMagnitudeFiltered + (magJammingThreshold * 3))) && (magMagnitude > (magMagnitudeFiltered - (magJammingThreshold * 3)))) {
-		magMagnitudeFiltered += ((magMagnitude - magMagnitudeFiltered) * 0.0001);
-	}
-	if(magMagnitudeFiltered > magMagnitudeFilteredMax)
-		magMagnitudeFiltered = magMagnitudeFilteredMax;
-	if(magMagnitudeFiltered < magMagnitudeFilteredMin)
-		magMagnitudeFiltered = magMagnitudeFilteredMin;
-	
-	// Use IMU algorithm if magnetic jamming is occurring
-	if(magJammingActive) {
-		//Maintain magJammingActive for 1 second
-		if(magJammingCounter++ < sampleFreq) {
-			updateIMU(gx, gy, gz, ax, ay, az);
-			return;
-		}
-	}
-	if((magMagnitude > (magMagnitudeFiltered + magJammingThreshold)) || (magMagnitude < (magMagnitudeFiltered - magJammingThreshold))) {
-		magJammingCounter = 0;
-		magJammingActive = true;
+	if(magneticJammingFilter.getJammingStatus()) {
 		updateIMU(gx, gy, gz, ax, ay, az);
 		return;
-	}
-	else {
-		magJammingCounter = 0;
-		magJammingActive = false;
-	}
+	}	
 	
 	// Convert gyroscope degrees/sec to radians/sec
 	gx *= 0.0174533f;
